@@ -4,22 +4,83 @@ import Home from './views/Home.vue'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
-  base: process.env.BASE_URL,
+  // base: process.env.BASE_URL,
   routes: [
     {
       path: '/',
       name: 'home',
-      component: Home
+      component: Home,
+      children:[
+       {path:'/',redirect:'/index'},
+        {
+          path:"/index",
+          name:'index',
+          component:()=>import("@/views/lnIndex")
+        },
+        {
+          path:"/classify",
+          name:'classify',
+          component:()=>import("@/views/classify")
+        },
+        {
+          path:"/find",
+          name:'find',
+          component:()=>import("@/views/find"),
+          
+        },
+        {
+          path:"/car",
+          name:'car',
+          component:()=>import("@/views/car"),
+          children:[
+            {path:"/",redirect:'/cItem'},
+            {path:"/cItem",
+            name:'cItem',
+            component:()=>import("@/components/cItem")},
+            {
+              path:"/carItem",
+              name:'carItem',
+              component:()=>import("@/components/carItem")
+            },
+          ]
+        },
+        {
+          path:"/mine",
+          name:'mine',
+          component:()=>import("@/views/mine")
+        },
+      ]
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
+      path: '/search',
+      name: 'search',
+      component: () => import("@/views/search")
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import("@/views/login"),
+    },
+    {
+      path: '/detail',
+      name: 'detail',
+      component: () => import("@/views/detail"),
+    },
+    {path: '/error',
+      name: 'error',
+      component:  () => import("@/components/error")
     }
   ]
 })
+router.beforeEach((to,from,next)=>{
+  if(to.matched.length === 0){
+    from.name ? next({
+      name:from.name
+    }) : next('/error')
+  }else{
+    next()
+  }
+})
+export default router;
